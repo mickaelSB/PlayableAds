@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venue: Relaxing Design Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Scene 1: Living Room with Chair Selection -->
+    <div id="scene1" class="scene">
+        <img src="assets/thumbnail_large.webp" alt="Living Room" class="background">
+        <div id="chair" class="chair">
+            <img id="chair-image" class="chair-img" src="" alt="Chair Preview">
+        </div>
+        <div class="thumbnail-bar">
+            <img src="assets/Item52_Thumbnail.webp" alt="Chair 1" class="thumbnail" data-chair="assets/Venue_Item_LoungeChair01.webp">
+            <img src="assets/Item7014_Thumbnail.webp" alt="Chair 2" class="thumbnail" data-chair="assets/Venue_Item_LoungeChair02.webp">
+            <img src="assets/Item210_Thumbnail.webp" alt="Chair 3" class="thumbnail" data-chair="assets/Venue_Item_LoungeChair03.webp">
+        </div>
+    </div>
+
+    <!-- Scene 2: Living Room with CTA Visual -->
+    <div id="scene2" class="scene" style="display: none;">
+        <div class="overlay"></div>
+        <img src="assets/thumbnail_large.webp" alt="Living Room" class="background">
+        <div class="cta-container">
+            <a href="https://apps.apple.com/fr/app/venue-lart-de-la-d%C3%A9coration/id6443802883" target="_blank">
+                <img src="assets/Venue_Icon_1024_Rounded.webp" alt="Game Icon" class="game-icon">
+                <img src="assets/Venue_CTA_Download_Logo_Coral.webp" alt="CTA" class="cta-visual">
+            </a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
