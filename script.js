@@ -15,7 +15,7 @@ let selectedThumbnail = null;
 // Create the confirm button element and add it to the body
 const confirmButton = document.createElement('button');
 confirmButton.className = 'mobile-confirm-button';
-confirmButton.textContent = 'Vote Now!';
+confirmButton.textContent = 'Select your chair';
 document.body.appendChild(confirmButton);
 
 // Show chair with 25% opacity on thumbnail hover (with 0.2s ease-in-out fade)
@@ -71,8 +71,9 @@ thumbnails.forEach(thumbnail => {
             }
         });
         
-        // Don't move the thumbnail bar
-        // thumbnailBar.classList.add('with-confirm-button');
+        // Update button text and style for selected state
+        confirmButton.textContent = 'Vote Now!';
+        confirmButton.classList.add('selected');
         
         // Show the confirm button
         confirmButton.classList.remove('visible');
@@ -115,45 +116,36 @@ thumbnails.forEach(thumbnail => {
 
     // Handle clicks for both touch and mouse
     thumbnail.addEventListener('click', () => {
-        console.log('Click/tap detected - transitioning to scene 2');
-        isHoveringThumbnail = false;
-        chairElement.classList.remove('visible-hover');
-        thumbnailContainer.classList.add('hidden');
+        if (isMobile) return; // Skip for mobile as we handle it with touch events
         
-        // Get the chair position for sparkle center
-        const chairRect = chairImage.getBoundingClientRect();
-        const centerX = chairRect.left + chairRect.width / 2;
-        const centerY = chairRect.top + chairRect.height / 2;
+        const chairSrc = thumbnail.getAttribute('data-chair');
+        chairImage.src = chairSrc;
+        chairElement.classList.remove('visible-hover', 'hidden');
+        chairElement.classList.add('visible-click');
         
-        // Create sparkles around the chair
-        createSparkles(centerX, centerY);
+        // Update button text and style for selected state
+        confirmButton.textContent = 'Vote Now!';
+        confirmButton.classList.add('selected');
         
-        // Disable only pointer events on thumbnails
+        // Store the selected thumbnail
+        selectedThumbnail = thumbnail;
+        
+        // Clear any existing blur on thumbnails first
         thumbnails.forEach(thumb => {
-            thumb.style.pointerEvents = 'none';  // Disable interactions but keep animation
+            thumb.classList.remove('dimmed');
         });
         
-        // Show the chair fully first
-        const newChairSrc = thumbnail.getAttribute('data-chair');
-        chairImage.src = newChairSrc;
-        chairElement.classList.remove('hidden');
-        chairElement.classList.add('visible-click', 'bounce');
+        // Then dim other thumbnails
+        thumbnails.forEach(thumb => {
+            if (thumb !== thumbnail) {
+                thumb.classList.add('dimmed');
+            }
+        });
         
-        // After bounce animation
-        setTimeout(() => {
-            // Prepare scene2
-            scene2.style.display = 'block';
-            
-            // Start fade out transition
-            chairElement.style.transition = 'opacity 0.3s ease-out';
-            chairElement.style.opacity = '0';
-            
-            // Start scene2 transition almost immediately
-            setTimeout(() => {
-                scene2.classList.add('active');
-            }, 30);
-            
-        }, 1500); // Keep bounce animation timing
+        // Make sure the button is visible with animation
+        confirmButton.classList.remove('visible');
+        void confirmButton.offsetWidth; // Force reflow
+        confirmButton.classList.add('visible');
     });
 });
 
@@ -192,6 +184,36 @@ document.head.insertAdjacentHTML('beforeend', `
     </style>
 `);
 
+// Function to reset the confirm button to its initial state
+function resetConfirmButton() {
+    confirmButton.textContent = 'Select your chair';
+    confirmButton.classList.remove('selected');
+}
+
+// Add this to the scene transition function
+function transitionToScene2() {
+    // Reset the confirm button
+    resetConfirmButton();
+    confirmButton.classList.remove('visible');
+    
+    // Create the flash effect
+    const flash = document.createElement('div');
+    flash.className = 'flash';
+    document.body.appendChild(flash);
+    
+    // After the flash animation completes, switch scenes
+    setTimeout(() => {
+        scene1.style.display = 'none';
+        scene2.style.display = 'block';
+        
+        // Force a reflow before adding the active class
+        void scene2.offsetWidth;
+        
+        scene2.classList.add('active');
+        document.body.removeChild(flash);
+    }, 150);
+}
+
 // Add click handler for the confirm button
 confirmButton.addEventListener('click', function() {
     if (!selectedThumbnail) return;
@@ -212,7 +234,6 @@ confirmButton.addEventListener('click', function() {
     
     // Hide thumbnail bar
     thumbnailContainer.classList.add('hidden');
-    // thumbnailBar.classList.remove('with-confirm-button'); // Not needed anymore
     
     // Clear any blur effects on thumbnails
     thumbnails.forEach(thumb => {
@@ -244,12 +265,16 @@ confirmButton.addEventListener('click', function() {
 
 // Update the HTML file to include the confirm button
 document.addEventListener('DOMContentLoaded', function() {
-    // Only show the confirm button on mobile
-    if (isMobile) {
-        confirmButton.style.display = 'block';
-    } else {
-        confirmButton.style.display = 'none';
-    }
+    // Show the confirm button on all platforms
+    confirmButton.style.display = 'block';
+    
+    // Initialize the button with the default text
+    resetConfirmButton();
+    
+    // Make the button visible but without animation
+    setTimeout(() => {
+        confirmButton.classList.add('visible');
+    }, 500);
 });
 
 // Add a way to cancel the selection on mobile
@@ -263,6 +288,13 @@ document.addEventListener('click', function(e) {
     if (selectedThumbnail) {
         selectedThumbnail = null;
         confirmButton.classList.remove('visible');
+        resetConfirmButton(); // Reset button text and style
+        
+        // Make the button visible again without animation
+        setTimeout(() => {
+            confirmButton.classList.add('visible');
+        }, 50);
+        
         thumbnailContainer.classList.remove('with-confirm-button');
         chairElement.classList.remove('mobile-preview');
         thumbnails.forEach(thumb => {
